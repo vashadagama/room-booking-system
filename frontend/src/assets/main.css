@@ -1,0 +1,159 @@
+:root {
+  /* Палитра */
+  --bg:            #b8b4ac;
+  --surface:       #d4d0c8;
+  --surface-alt:   #e8e4dc;
+  --surface-hover: #dcd8d0;
+
+  --border-light:  #f4f0e8;
+  --border-mid:    #9a9690;
+  --border-dark:   #6c6860;
+
+  --accent:        #4a6884;
+  --accent-dark:   #2c4458;
+  --accent-light:  #6a88a4;
+
+  --success:       #4a7c59;
+  --success-light: #7aa88a;
+  --success-bg:    #d8e8d8;
+
+  --danger:        #9a3a3a;
+  --danger-light:  #c06060;
+  --danger-bg:     #e8d0d0;
+
+  --warning:       #a07030;
+  --warning-bg:    #ecdcb8;
+
+  --text:          #1a1a1a;
+  --text-muted:    #5c5850;
+
+  --font:      'Tahoma', 'Verdana', 'MS Sans Serif', sans-serif;
+  --font-mono: 'Consolas', 'Courier New', monospace;
+
+  --radius: 0px;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea {
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* Retro button */
+.retro-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  box-shadow:
+    inset 1px 1px 0 var(--border-light),
+    inset -1px -1px 0 var(--border-dark);
+  padding: 4px 12px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--text);
+  text-decoration: none;
+  transition: background 0.05s;
+}
+.retro-btn:hover { background: var(--surface-hover); }
+.retro-btn:active {
+  box-shadow:
+    inset -1px -1px 0 var(--border-light),
+    inset 1px 1px 0 var(--border-dark);
+  padding: 5px 11px 3px 13px;
+}
+.retro-btn:disabled,
+.retro-btn.disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  text-shadow: 1px 1px 0 var(--border-light);
+}
+.retro-btn.primary {
+  background: linear-gradient(180deg, var(--accent-light), var(--accent));
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+}
+.retro-btn.primary:hover { background: linear-gradient(180deg, #7a98b4, var(--accent)); }
+.retro-btn.danger {
+  background: linear-gradient(180deg, var(--danger-light), var(--danger));
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+}
+.retro-btn.danger:hover { background: linear-gradient(180deg, #d07070, var(--danger)); }
+
+/* Retro input */
+.retro-input {
+  background: #ffffff;
+  border: 1px solid var(--border-mid);
+  box-shadow:
+    inset 1px 1px 0 var(--border-dark),
+    inset -1px -1px 0 var(--border-light);
+  padding: 4px 6px;
+  outline: none;
+  color: var(--text);
+}
+.retro-input:focus {
+  background: #fffef6;
+  box-shadow:
+    inset 1px 1px 0 var(--accent-dark),
+    inset -1px -1px 0 var(--accent-light);
+}
+
+/* Retro panel */
+.retro-panel {
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  box-shadow:
+    inset 1px 1px 0 var(--border-light),
+    inset -1px -1px 0 var(--border-dark);
+}
+
+.retro-panel-inset {
+  background: var(--surface-alt);
+  border: 1px solid var(--border-mid);
+  box-shadow:
+    inset 1px 1px 0 var(--border-dark),
+    inset -1px -1px 0 var(--border-light);
+}
+
+/* Titlebar */
+.retro-titlebar {
+  background: linear-gradient(90deg, var(--accent-dark) 0%, var(--accent) 60%, var(--accent-light) 100%);
+  color: #fff;
+  padding: 4px 8px;
+  font-weight: bold;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 16px; height: 16px; }
+::-webkit-scrollbar-track {
+  background: var(--surface);
+  box-shadow: inset 1px 1px 0 var(--border-dark), inset -1px -1px 0 var(--border-light);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  box-shadow: inset 1px 1px 0 var(--border-light), inset -1px -1px 0 var(--border-dark);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--surface-hover); }
