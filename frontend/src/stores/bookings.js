@@ -13,11 +13,11 @@ export const useBookingStore = defineStore('bookings', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  async function fetchMyBookings(userId) {
+  async function fetchMyBookings() {
     loading.value = true
     error.value = null
     try {
-      const res = await getMyBookings(userId)
+      const res = await getMyBookings()
       myBookings.value = res.data
     } catch (e) {
       error.value = e.response?.data?.message || e.message
@@ -46,8 +46,8 @@ export const useBookingStore = defineStore('bookings', () => {
     return res.data
   }
 
-  async function removeBooking(id, userId) {
-    await cancelBooking(id, userId)
+  async function removeBooking(id) {
+    await cancelBooking(id)
   }
 
   return {

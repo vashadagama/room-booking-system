@@ -5,8 +5,23 @@ const client = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
-// В лабе 7 заменить на данные из токена.
-export const MOCK_USER_ID = 1
-export const MOCK_USER_NAME = 'Test User'
+client.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+// Собирает читаемый текст ошибки из разных форматов ответа backend:
+// обычная ошибка — в message, ошибка валидации — в errors (объект по полям).
+export function errorText(e, fallback = 'Something went wrong') {
+  const data = e.response?.data
+
+  if (data?.errors && typeof data.errors === 'object') {
+    return Object.values(data.errors).join('. ')
+  }
+  return data?.message || e.message || fallback
+}
 
 export default client

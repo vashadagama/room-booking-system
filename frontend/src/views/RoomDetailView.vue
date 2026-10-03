@@ -1,15 +1,17 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useBookingStore } from '@/stores/bookings'
 import { useRoomStore } from '@/stores/rooms'
-import { MOCK_USER_ID, MOCK_USER_NAME } from '@/api/client'
+import { useAuthStore } from '@/stores/auth'
 import BookingGrid from '@/components/features/BookingGrid.vue'
 
 const route = useRoute()
+const router = useRouter()
 const roomId = route.params.id
 const bookingStore = useBookingStore()
 const roomStore = useRoomStore()
+const authStore = useAuthStore()
 
 const selectedDate = ref(new Date().toISOString().split('T')[0])
 const feedback = ref(null)
@@ -26,15 +28,23 @@ onMounted(async () => {
 })
 
 async function handleBook(slot) {
+  // Посмотреть сетку можно без входа, а забронировать — уже нет.
+  if (!authStore.isAuthenticated) {
+    router.push({ name: 'register', query: { from: route.fullPath } })
+    return
+  }
+
   feedback.value = null
   try {
+    // Название не должно зависеть от гонки с загрузкой профиля,
+    // иначе после F5 в базу уйдёт "User's meeting".
+    const user = await authStore.ensureUserLoaded()
+
     await bookingStore.addBooking({
       roomId: Number(roomId),
-      title: `${MOCK_USER_NAME}'s meeting`,
+      title: `${user?.username || 'User'}'s meeting`,
       startTime: slot.start,
-      endTime: slot.end,
-      userId: MOCK_USER_ID,
-      userName: MOCK_USER_NAME
+      endTime: slot.end
     })
     feedback.value = { type: 'success', text: 'Booking created.' }
     await loadBookings()

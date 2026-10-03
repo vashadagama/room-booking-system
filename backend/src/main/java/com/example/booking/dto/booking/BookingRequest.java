@@ -21,12 +21,4 @@ public class BookingRequest {
 
     @NotNull(message = "End time is required")
     private LocalDateTime endTime;
-
-    // Пока авторизации нет — передаём вручную.
-    // В лабе 7 заменим на данные из JWT.
-    @NotNull(message = "User ID is required")
-    private Long userId;
-
-    @NotBlank(message = "User name is required")
-    private String userName;
 }

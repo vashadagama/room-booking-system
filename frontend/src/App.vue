@@ -1,5 +1,15 @@
 <script setup>
+import { onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+
+// Токен живёт в localStorage, а данные пользователя — в памяти.
+// После перезагрузки страницы восстанавливаем профиль по токену.
+onMounted(() => {
+  authStore.ensureUserLoaded()
+})
 </script>
 
 <template>
@@ -24,7 +34,20 @@ import { RouterLink, RouterView } from 'vue-router'
           My Bookings
         </RouterLink>
         <div class="toolbar-spacer"></div>
-        <span class="toolbar-hint">Lab 2 — Vue SPA</span>
+        <template v-if="authStore.isAuthenticated">
+          <RouterLink to="/profile" class="retro-btn" active-class="active">
+            {{ authStore.user?.username }}
+          </RouterLink>
+          <button class="retro-btn" @click="authStore.logout()">Logout</button>
+        </template>
+        <template v-else>
+          <RouterLink to="/login" class="retro-btn" active-class="active">
+            Login
+          </RouterLink>
+          <RouterLink to="/register" class="retro-btn" active-class="active">
+            Register
+          </RouterLink>
+        </template>
       </div>
 
       <!-- Content -->

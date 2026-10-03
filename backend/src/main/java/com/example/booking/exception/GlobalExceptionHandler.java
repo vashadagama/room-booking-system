@@ -18,6 +18,16 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(TooManyAttemptsException.class)
+    public ResponseEntity<Map<String, Object>> handleTooManyAttempts(TooManyAttemptsException ex) {
+        return buildResponse(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage());
+    }
+
     @ExceptionHandler(BookingConflictException.class)
     public ResponseEntity<Map<String, Object>> handleConflict(BookingConflictException ex) {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
@@ -49,5 +59,17 @@ public class GlobalExceptionHandler {
         body.put("error", status.getReasonPhrase());
         body.put("message", message);
         return ResponseEntity.status(status).body(body);
+    }
+
+    /**
+     * Всё остальное — 500 с текстом ошибки.
+     * Без этого необработанное исключение уходило в /error,
+     * который закрыт для анонимов, и клиент получал пустой 403
+     * вместо настоящей причины.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleUnexpected(Exception ex) {
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+                ex.getClass().getSimpleName() + ": " + ex.getMessage());
     }
 }

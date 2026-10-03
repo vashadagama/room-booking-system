@@ -1,30 +1,49 @@
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useBookingStore } from '@/stores/bookings'
-import { MOCK_USER_ID } from '@/api/client'
+import { useAuthStore } from '@/stores/auth'
 
 const bookingStore = useBookingStore()
+const authStore = useAuthStore()
 const { myBookings, loading, error } = storeToRefs(bookingStore)
 
-async function load() {
+const showCancelModal = ref(false)
+const cancelTargetId = ref(null)
+const cancelError = ref(null)
+
+// Токен читается из localStorage синхронно, поэтому isAuthenticated
+// уже готов на момент F5. user здесь не нужен — он приходит асинхронно.
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    bookingStore.fetchMyBookings().catch(() => {})
+  }
+})
+
+function askCancel(id) {
+  cancelTargetId.value = id
+  cancelError.value = null
+  showCancelModal.value = true
+}
+
+async function confirmCancel() {
+  const id = cancelTargetId.value
+  if (!id) return
   try {
-    await bookingStore.fetchMyBookings(MOCK_USER_ID)
-  } catch {
-    /* error отображается через store */
+    await bookingStore.removeBooking(id)
+    showCancelModal.value = false
+    cancelTargetId.value = null
+    const booking = myBookings.value.find(b => b.id === id)
+    if (booking) booking.status = 'CANCELLED'
+  } catch (e) {
+    cancelError.value = e.response?.data?.message || e.message
   }
 }
 
-onMounted(load)
-
-async function cancel(id) {
-  if (!confirm('Cancel this booking?')) return
-  try {
-    await bookingStore.removeBooking(id, MOCK_USER_ID)
-    await load()
-  } catch (e) {
-    alert(e.response?.data?.message || e.message)
-  }
+function closeCancelModal() {
+  showCancelModal.value = false
+  cancelTargetId.value = null
+  cancelError.value = null
 }
 
 function fmt(dt) {
@@ -62,18 +81,32 @@ function fmt(dt) {
           <td>
             <span class="status" :class="b.status.toLowerCase()">{{ b.status }}</span>
           </td>
-          <td>
-            <button
-              class="retro-btn danger"
-              :disabled="b.status !== 'ACTIVE'"
-              @click="cancel(b.id)"
-            >
-              Cancel
-            </button>
-          </td>
+            <td>
+              <button
+                class="retro-btn danger"
+                :disabled="b.status !== 'ACTIVE'"
+                @click="askCancel(b.id)"
+              >
+                Cancel
+              </button>
+            </td>
         </tr>
       </tbody>
     </table>
+
+    <div v-if="showCancelModal" class="modal-overlay" @click.self="closeCancelModal">
+      <div class="modal retro-panel">
+        <div class="modal-title">Cancel Booking</div>
+        <div class="modal-body">
+          <p>Are you sure you want to cancel this booking?</p>
+          <p v-if="cancelError" class="error-text">{{ cancelError }}</p>
+        </div>
+        <div class="modal-actions">
+          <button class="retro-btn" @click.prevent="closeCancelModal">No</button>
+          <button class="retro-btn danger" @click.prevent="confirmCancel">Yes, Cancel</button>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -130,4 +163,46 @@ function fmt(dt) {
 .status.active    { background: var(--success-bg); color: var(--success); border-color: var(--success); }
 .status.cancelled { background: var(--danger-bg);  color: var(--danger);  border-color: var(--danger); }
 .status.completed { background: var(--surface-alt); color: var(--text-muted); }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  min-width: 320px;
+  max-width: 480px;
+  padding: 0;
+}
+
+.modal-title {
+  padding: 8px 12px;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent-light));
+  color: #fff;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.modal-body {
+  padding: 16px 12px;
+  font-size: 13px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border-mid);
+}
+
+.error-text {
+  color: var(--danger);
+  margin-top: 8px;
+}
 </style>

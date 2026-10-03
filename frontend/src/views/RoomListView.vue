@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { RouterLink } from 'vue-router'
 import { useRoomStore } from '@/stores/rooms'
+import MineSweeperCard from '@/components/features/MineSweeperCard.vue'
 
 const roomStore = useRoomStore()
 const { rooms, loading, error } = storeToRefs(roomStore)
@@ -18,9 +19,10 @@ onMounted(() => {
 
     <div v-if="loading" class="state">Loading…</div>
     <div v-else-if="error" class="state error">{{ error }}</div>
-    <div v-else-if="rooms.length === 0" class="state">No rooms available.</div>
 
     <div v-else class="room-grid">
+      <div v-if="rooms.length === 0" class="state">No rooms available.</div>
+
       <RouterLink
         v-for="room in rooms"
         :key="room.id"
@@ -41,6 +43,8 @@ onMounted(() => {
           <span class="hint">Click to book →</span>
         </div>
       </RouterLink>
+
+      <MineSweeperCard />
     </div>
   </section>
 </template>

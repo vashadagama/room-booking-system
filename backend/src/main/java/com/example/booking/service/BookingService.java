@@ -42,7 +42,7 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingResponse create(BookingRequest request) {
+    public BookingResponse create(BookingRequest request, Long userId, String userName) {
         validateTimeRange(request.getStartTime(), request.getEndTime());
 
         Room room = roomRepository.findById(request.getRoomId())
@@ -57,8 +57,8 @@ public class BookingService {
 
         Booking booking = Booking.builder()
                 .room(room)
-                .userId(request.getUserId())
-                .userName(request.getUserName())
+                .userId(userId)
+                .userName(userName)
                 .title(request.getTitle())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
