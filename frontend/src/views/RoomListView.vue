@@ -1,12 +1,34 @@
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { RouterLink } from 'vue-router'
 import { useRoomStore } from '@/stores/rooms'
-import MineSweeperCard from '@/components/features/MineSweeperCard.vue'
+import GamesCard from '@/components/features/GamesCard.vue'
 
 const roomStore = useRoomStore()
 const { rooms, loading, error } = storeToRefs(roomStore)
+
+// Карточка игр встаёт на случайное место среди комнат, но только в
+// пределах первых MS_SLOTS позиций. В сетке от 2 колонок это первые два
+// ряда, поэтому карточка всегда остаётся на основном экране, даже когда
+// комнат много и сетка уходит вниз.
+const MS_SLOTS = 4
+const gamesSlot = ref(0)
+
+watch(
+  rooms,
+  list => {
+    const maxSlot = Math.min(list.length, MS_SLOTS)
+    gamesSlot.value = Math.floor(Math.random() * (maxSlot + 1))
+  },
+  { immediate: true }
+)
+
+const gridItems = computed(() => {
+  const items = rooms.value.map(room => ({ kind: 'room', room }))
+  items.splice(gamesSlot.value, 0, { kind: 'games' })
+  return items
+})
 
 onMounted(() => {
   roomStore.fetchRooms()
@@ -23,28 +45,29 @@ onMounted(() => {
     <div v-else class="room-grid">
       <div v-if="rooms.length === 0" class="state">No rooms available.</div>
 
-      <RouterLink
-        v-for="room in rooms"
-        :key="room.id"
-        :to="`/rooms/${room.id}`"
-        class="room-card retro-panel"
-      >
-        <div class="room-card-header">
-          <span class="room-icon">🏢</span>
-          <span class="room-name">{{ room.name }}</span>
-        </div>
-        <div class="room-card-body retro-panel-inset">
-          <div><b>Capacity:</b> {{ room.capacity }}</div>
-          <div><b>Location:</b> {{ room.location }}</div>
-          <div v-if="room.equipment"><b>Equipment:</b> {{ room.equipment }}</div>
-          <div v-if="room.description" class="desc">{{ room.description }}</div>
-        </div>
-        <div class="room-card-footer">
-          <span class="hint">Click to book →</span>
-        </div>
-      </RouterLink>
+      <template v-for="item in gridItems" :key="item.kind === 'room' ? item.room.id : 'minesweeper'">
+        <RouterLink
+          v-if="item.kind === 'room'"
+          :to="`/rooms/${item.room.id}`"
+          class="room-card retro-panel"
+        >
+          <div class="room-card-header">
+            <span class="room-icon">🏢</span>
+            <span class="room-name">{{ item.room.name }}</span>
+          </div>
+          <div class="room-card-body retro-panel-inset">
+            <div><b>Capacity:</b> {{ item.room.capacity }}</div>
+            <div><b>Location:</b> {{ item.room.location }}</div>
+            <div v-if="item.room.equipment"><b>Equipment:</b> {{ item.room.equipment }}</div>
+            <div v-if="item.room.description" class="desc">{{ item.room.description }}</div>
+          </div>
+          <div class="room-card-footer">
+            <span class="hint">Click to book →</span>
+          </div>
+        </RouterLink>
 
-      <MineSweeperCard />
+        <GamesCard v-else />
+      </template>
     </div>
   </section>
 </template>

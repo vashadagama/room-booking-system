@@ -2,13 +2,15 @@
 import { onMounted } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { connectWs, wsStatus } from '@/ws/socket'
 
 const authStore = useAuthStore()
 
-// Токен живёт в localStorage, а данные пользователя — в памяти.
-// После перезагрузки страницы восстанавливаем профиль по токену.
 onMounted(() => {
+  // Профиль восстанавливаем из токена (он в localStorage),
+  // а сокет поднимаем один раз на всё приложение.
   authStore.ensureUserLoaded()
+  connectWs()
 })
 </script>
 
@@ -57,8 +59,11 @@ onMounted(() => {
 
       <!-- Status bar -->
       <div class="statusbar">
-        <span>Ready.</span>
-        <span>v0.2</span>
+        <span class="live">
+          <i class="live-dot" :class="wsStatus"></i>
+          {{ wsStatus === 'connected' ? 'Live' : wsStatus === 'connecting' ? 'Подключение…' : wsStatus === 'reconnecting' ? 'Переподключение…' : 'Offline' }}
+        </span>
+        <span>v0.3</span>
       </div>
     </div>
   </div>
@@ -138,5 +143,31 @@ onMounted(() => {
   border-top: 1px solid var(--border-mid);
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--border-dark);
+  background: var(--text-muted);
+}
+
+.live-dot.connected {
+  background: var(--success);
+}
+
+.live-dot.connecting,
+.live-dot.reconnecting {
+  background: var(--warning);
+}
+
+.live-dot.disconnected {
+  background: var(--danger);
 }
 </style>

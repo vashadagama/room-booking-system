@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { getRooms, getRoom } from '@/api/rooms'
+import { onWsMessage } from '@/ws/socket'
 
 export const useRoomStore = defineStore('rooms', () => {
   const rooms = ref([])
@@ -33,6 +34,19 @@ export const useRoomStore = defineStore('rooms', () => {
       loading.value = false
     }
   }
+
+  // Список комнат присылает сервер целиком, поэтому просто заменяем массив —
+  // так состояние клиента не может разъехаться с серверным.
+  onWsMessage((message) => {
+    if (message.type === 'ROOMS_CHANGED') {
+      rooms.value = message.rooms
+    }
+
+    // Переподключились — наверняка что-то пропустили, перезапрашиваем.
+    if (message.type === 'SOCKET_OPEN') {
+      fetchRooms()
+    }
+  })
 
   return { rooms, currentRoom, loading, error, fetchRooms, fetchRoom }
 })

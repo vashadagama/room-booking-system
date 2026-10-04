@@ -15,6 +15,12 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
+      },
+      // ws: true обязателен — без него апгрейд соединения до WebSocket
+      // не пройдёт через dev-сервер.
+      '/ws': {
+        target: 'ws://localhost:8080',
+        ws: true,
       }
     }
   }

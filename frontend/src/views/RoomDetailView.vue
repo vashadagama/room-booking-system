@@ -47,7 +47,8 @@ async function handleBook(slot) {
       endTime: slot.end
     })
     feedback.value = { type: 'success', text: 'Booking created.' }
-    await loadBookings()
+    // Список обновится сам по событию BOOKINGS_CHANGED из сокета —
+    // ручной перезапрос здесь был бы лишним запросом.
   } catch (e) {
     feedback.value = {
       type: 'error',

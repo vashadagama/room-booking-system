@@ -5,6 +5,7 @@ import com.example.booking.dto.room.RoomResponse;
 import com.example.booking.entity.Room;
 import com.example.booking.exception.ResourceNotFoundException;
 import com.example.booking.repository.RoomRepository;
+import com.example.booking.ws.WsEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.List;
 public class RoomService {
 
     private final RoomRepository roomRepository;
+    private final WsEventPublisher wsEvents;
 
     public List<RoomResponse> getAllActive() {
         return roomRepository.findAllByIsActiveTrue()
@@ -40,7 +42,10 @@ public class RoomService {
                 .equipment(request.getEquipment())
                 .isActive(true)
                 .build();
-        return toResponse(roomRepository.save(room));
+
+        RoomResponse response = toResponse(roomRepository.save(room));
+        wsEvents.roomsChanged();
+        return response;
     }
 
     @Transactional
@@ -52,7 +57,9 @@ public class RoomService {
         room.setLocation(request.getLocation());
         room.setDescription(request.getDescription());
         room.setEquipment(request.getEquipment());
-        return toResponse(roomRepository.save(room));
+        RoomResponse response = toResponse(roomRepository.save(room));
+        wsEvents.roomsChanged();
+        return response;
     }
 
     @Transactional
@@ -61,6 +68,7 @@ public class RoomService {
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found: " + id));
         room.setIsActive(false);
         roomRepository.save(room);
+        wsEvents.roomsChanged();
     }
 
     private RoomResponse toResponse(Room room) {

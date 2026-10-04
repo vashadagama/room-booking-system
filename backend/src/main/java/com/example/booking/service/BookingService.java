@@ -9,6 +9,7 @@ import com.example.booking.exception.BookingConflictException;
 import com.example.booking.exception.ResourceNotFoundException;
 import com.example.booking.repository.BookingRepository;
 import com.example.booking.repository.RoomRepository;
+import com.example.booking.ws.WsEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final RoomRepository roomRepository;
+    private final WsEventPublisher wsEvents;
 
     public List<BookingResponse> getMyBookings(Long userId) {
         return bookingRepository.findAllByUserId(userId)
@@ -65,7 +67,10 @@ public class BookingService {
                 .status(BookingStatus.ACTIVE)
                 .build();
 
-        return toResponse(bookingRepository.save(booking));
+        BookingResponse response = toResponse(bookingRepository.save(booking));
+
+        wsEvents.bookingsChanged(room.getId(), request.getStartTime().toLocalDate());
+        return response;
     }
 
     @Transactional
@@ -79,6 +84,8 @@ public class BookingService {
 
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
+
+        wsEvents.bookingsChanged(booking.getRoom().getId(), booking.getStartTime().toLocalDate());
     }
 
     private void validateTimeRange(LocalDateTime start, LocalDateTime end) {
