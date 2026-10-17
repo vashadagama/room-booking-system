@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -23,6 +24,15 @@ public class RoomService {
         return roomRepository.findAllByIsActiveTrue()
                 .stream()
                 .map(this::toResponse)
+                .toList();
+    }
+
+    /** Для админки: нужны и отключённые комнаты, их больше не видно в списке. */
+    public List<RoomResponse> getAllIncludingInactive() {
+        return roomRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .sorted(Comparator.comparing(RoomResponse::getName))
                 .toList();
     }
 

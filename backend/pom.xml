@@ -29,6 +29,8 @@
 	<properties>
 		<java.version>26</java.version>
 		<lombok.version>1.18.48</lombok.version>
+		<!-- 4.0.3 собран под Spring Boot 4.0.x, совместим с нашим 4.1.1 -->
+		<spring-shell.version>4.0.3</spring-shell.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -50,6 +52,21 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+		<!-- Консольные команды выгрузки, бэкапа и отчёта. Работают
+		     только под профилем cli, в обычном запуске и в Docker
+		     оболочка не поднимается. -->
+		<dependency>
+			<groupId>org.springframework.shell</groupId>
+			<artifactId>spring-shell-starter</artifactId>
+			<version>${spring-shell.version}</version>
+		</dependency>
+		<!-- JLine идёт отдельным артефактом: без него автоконфигурация
+		     оболочки молча выключается по ConditionalOnClass. -->
+		<dependency>
+			<groupId>org.springframework.shell</groupId>
+			<artifactId>spring-shell-jline</artifactId>
+			<version>${spring-shell.version}</version>
 		</dependency>
 
 		<dependency>

@@ -37,6 +37,14 @@ onMounted(() => {
         </RouterLink>
         <div class="toolbar-spacer"></div>
         <template v-if="authStore.isAuthenticated">
+          <RouterLink
+            v-if="authStore.isAdmin"
+            to="/admin"
+            class="retro-btn"
+            active-class="active"
+          >
+            Admin
+          </RouterLink>
           <RouterLink to="/profile" class="retro-btn" active-class="active">
             {{ authStore.user?.username }}
           </RouterLink>

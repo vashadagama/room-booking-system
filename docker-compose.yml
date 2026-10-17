@@ -1,20 +1,41 @@
 services:
   postgres:
     image: postgres:18-alpine
-    container_name: booking-postgres
     environment:
-      POSTGRES_DB: booking_db # этот
-      POSTGRES_USER: booking_user # и этот
-      POSTGRES_PASSWORD: booking_password # и этот будут заменены в лаб 8
+      POSTGRES_DB: booking_db
+      POSTGRES_USER: booking_user
+      POSTGRES_PASSWORD: booking_password
+    # Порт на хосте нужен и локальной разработке: application.properties
+    # ходит в базу по localhost:5432.
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U booking_user -d booking_db"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      # Внутри сети compose бэк ходит в базу по имени сервиса, а не localhost.
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/booking_db
+      SPRING_DATASOURCE_USERNAME: booking_user
+      SPRING_DATASOURCE_PASSWORD: booking_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
 
 volumes:
   postgres_data:
