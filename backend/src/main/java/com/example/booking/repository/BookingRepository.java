@@ -41,7 +41,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("dayEnd") LocalDateTime dayEnd
     );
 
-    /** Брони за период — нужно и выгрузке в CSV, и сводке админки. */
     @Query("""
             SELECT b FROM Booking b
             WHERE b.startTime >= :from AND b.startTime < :to
@@ -52,7 +51,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("to") LocalDateTime to
     );
 
-    /** Сколько броней у каждого пользователя — для топа активности. */
     @Query("""
             SELECT b.userId AS userId, b.userName AS userName, COUNT(b) AS bookings
             FROM Booking b
@@ -73,11 +71,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     long countByStartTimeGreaterThanEqualAndStartTimeLessThan(LocalDateTime from, LocalDateTime to);
 
-    /** Активные брони, которые уже закончились: их статус не обновили. */
     @Query("SELECT b FROM Booking b WHERE b.status = 'ACTIVE' AND b.endTime < :now")
     List<Booking> findFinishedButActive(@Param("now") LocalDateTime now);
 
-    /** Активные брони на отключённых комнатах — бронировать в них уже нельзя. */
     @Query("""
             SELECT b FROM Booking b
             WHERE b.status = 'ACTIVE' AND b.room.isActive = false

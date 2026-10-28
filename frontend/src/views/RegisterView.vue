@@ -33,7 +33,6 @@ async function submit() {
       firstName: form.value.firstName,
       lastName: form.value.lastName
     })
-    // Возвращаемся на страницу, откуда пришли, либо на главную.
     router.push(route.query.from || '/')
   } catch (e) {
     error.value = errorText(e, 'Registration failed')

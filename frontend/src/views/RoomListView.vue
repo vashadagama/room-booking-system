@@ -8,10 +8,6 @@ import GamesCard from '@/components/features/GamesCard.vue'
 const roomStore = useRoomStore()
 const { rooms, loading, error } = storeToRefs(roomStore)
 
-// Карточка игр встаёт на случайное место среди комнат, но только в
-// пределах первых MS_SLOTS позиций. В сетке от 2 колонок это первые два
-// ряда, поэтому карточка всегда остаётся на основном экране, даже когда
-// комнат много и сетка уходит вниз.
 const MS_SLOTS = 4
 const gamesSlot = ref(0)
 

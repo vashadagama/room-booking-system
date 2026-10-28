@@ -10,7 +10,5 @@ public class UserResponse {
     private String username;
     private String firstName;
     private String lastName;
-    /** Роль приходит и после перезагрузки страницы: без неё фронт
-     *  после F5 не понимает, показывать ли админские ссылки. */
     private String role;
 }

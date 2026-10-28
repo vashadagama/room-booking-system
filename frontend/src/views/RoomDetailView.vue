@@ -36,8 +36,6 @@ async function handleBook(slot) {
 
   feedback.value = null
   try {
-    // Название не должно зависеть от гонки с загрузкой профиля,
-    // иначе после F5 в базу уйдёт "User's meeting".
     const user = await authStore.ensureUserLoaded()
 
     await bookingStore.addBooking({
@@ -47,8 +45,6 @@ async function handleBook(slot) {
       endTime: slot.end
     })
     feedback.value = { type: 'success', text: 'Booking created.' }
-    // Список обновится сам по событию BOOKINGS_CHANGED из сокета —
-    // ручной перезапрос здесь был бы лишним запросом.
   } catch (e) {
     feedback.value = {
       type: 'error',

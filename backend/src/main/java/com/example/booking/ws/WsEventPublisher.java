@@ -6,10 +6,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
-/**
- * Тонкая обёртка над {@link ApplicationEventPublisher}, чтобы сервисам
- * не приходилось знать про механику событий и WebSocket.
- */
 @Component
 @RequiredArgsConstructor
 public class WsEventPublisher {

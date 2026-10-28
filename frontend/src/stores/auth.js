@@ -9,9 +9,7 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref(null)
 
   const isAuthenticated = computed(() => !!token.value)
-// Роль приходит и после F5: бэк отдаёт её в UserResponse,
-// поэтому ссылка админки не исчезает после перезагрузки.
-const isAdmin = computed(() => user.value?.role === 'ADMIN')
+  const isAdmin = computed(() => user.value?.role === 'ADMIN')
 
   async function loginUser(credentials) {
     loading.value = true
@@ -55,9 +53,6 @@ const isAdmin = computed(() => user.value?.role === 'ADMIN')
     }
   }
 
-  // user живёт в памяти, а токен — в localStorage, поэтому после F5
-  // профиль ещё пуст. Нужен способ дождаться его, не делая второй запрос:
-  // параллельные вызовы делят один промис.
   let userPromise = null
 
   function ensureUserLoaded() {

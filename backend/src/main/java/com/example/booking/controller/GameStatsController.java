@@ -15,12 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Очки за игры — блок в профиле и приём результатов.
- *
- * Сама игра живёт во вкладке и считается на клиенте; сюда приходит только
- * итог, из которого сервер сам выводит очки.
- */
 @RestController
 @RequestMapping("/api/games")
 @RequiredArgsConstructor
@@ -28,7 +22,6 @@ public class GameStatsController {
 
     private final GameStatsService statsService;
 
-    /** Статистика по всем играм для блока в профиле. */
     @GetMapping("/stats")
     public GamesProfileResponse stats(Authentication authentication) {
         AuthenticatedUser principal = (AuthenticatedUser) authentication.getPrincipal();
@@ -43,10 +36,6 @@ public class GameStatsController {
                 .build();
     }
 
-    /**
-     * Победа в сапёре. Очки считает сервер, клиент присылает только
-     * время и число верных флажков.
-     */
     @PostMapping("/minesweeper")
     public GameStatsResponse submitMinesweeper(Authentication authentication,
                                                @Valid @RequestBody MinesweeperResultRequest request) {
@@ -62,10 +51,6 @@ public class GameStatsController {
                 .orElseThrow();
     }
 
-    /**
-     * Победа в пасьянсе. Очки считает сервер, клиент присылает только
-     * время и число ходов.
-     */
     @PostMapping("/solitaire")
     public GameStatsResponse submitSolitaire(Authentication authentication,
                                              @Valid @RequestBody SolitaireResultRequest request) {

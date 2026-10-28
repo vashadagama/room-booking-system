@@ -19,9 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminService {
 
-    /** Сколько человек показываем в «топе» броней. */
     private static final int TOP_BOOKERS = 5;
-
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
@@ -36,9 +34,6 @@ public class AdminService {
                 .map(c -> new AdminSummaryResponse.TopUser(c.getUserId(), c.getUserName(), c.getBookings()))
                 .toList();
 
-        // Итоги по играм берём нативным запросом: в базе могут остаться
-        // значения game_type, которых в enum уже нет, и материализация
-        // сущностей на них ломает всю страницу.
         List<AdminSummaryResponse.GameTotal> games = new ArrayList<>();
         int scoreSum = 0;
         for (Object[] row : gameStatsRepository.gameTypeTotals()) {
@@ -62,7 +57,6 @@ public class AdminService {
                 .build();
     }
 
-    /** PostgreSQL отдаёт bigint как Long, но на всякий случай приводим к long. */
     private long asLong(Object value) {
         return value instanceof Number number ? number.longValue() : 0L;
     }

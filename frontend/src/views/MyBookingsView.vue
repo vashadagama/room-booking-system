@@ -12,8 +12,6 @@ const showCancelModal = ref(false)
 const cancelTargetId = ref(null)
 const cancelError = ref(null)
 
-// Токен читается из localStorage синхронно, поэтому isAuthenticated
-// уже готов на момент F5. user здесь не нужен — он приходит асинхронно.
 onMounted(() => {
   if (authStore.isAuthenticated) {
     bookingStore.fetchMyBookings().catch(() => {})

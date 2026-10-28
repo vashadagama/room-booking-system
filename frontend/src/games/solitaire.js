@@ -1,20 +1,6 @@
-/**
- * Клондойк: колода, раздача и правила ходов.
- *
- * Модуль намеренно не зависит от Vue и от DOM — так его можно
- * покрыть обычными тестами, а компонент только рисует состояние.
- *
- * Карты описываются числами, а не объектами: масть — старшие два бита,
- * достоинство — младшие. Сравнения и раскладка по мастям от этого
- * дешевле, а колода из 52 карт копируется целиком на каждый откат.
- */
-
-/** Масти: ♠ ♥ ♦ ♣ */
 export const SUITS = ['♠', '♥', '♦', '♣']
-/** Значения карт: 1 — туз, 11 — валет, 12 — дама, 13 — король. */
 export const RANKS = ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
 
-/** Красные масти — по ним чередуются карты в рядах. */
 const RED_SUITS = new Set([1, 2])
 
 export function suitOf(card) {
@@ -56,10 +42,6 @@ function shuffle(cards) {
 export const TABLEAU_PILES = 7
 export const FOUNDATIONS = 4
 
-/**
- * Раздача клондойка: 24 карты в колоду и по 1–7 карт в ряды,
- * в каждом ряду открыта только последняя карта.
- */
 export function deal() {
   const deck = shuffle(newDeck())
   const tableau = []
@@ -122,23 +104,11 @@ function commit(state, snap) {
 
 /** Откат последнего хода. Возвращает false, если ходов ещё не было. */
 export function undo(state) {
-  const snap = state.history.pop()
-  if (!snap) return false
-  restore(state, snap)
-  return true
-}
-
-/** Открывает карту, если она лежит рубашкой вверху стопки. */
-function flipTop(state, pile) {
   if (pile.length === 0) return
   const top = pile[pile.length - 1]
   state.faceUp.add(top)
 }
 
-/**
- * Можно ли положить карту (или стопку карт) на основание.
- * Основание собирает масть по возрастанию от туза.
- */
 export function canToFoundation(state, card) {
   const foundation = state.foundations[suitOf(card)]
   if (foundation.length === 0) {
@@ -148,10 +118,6 @@ export function canToFoundation(state, card) {
   return suitOf(top) === suitOf(card) && rankOf(card) === rankOf(top) + 1
 }
 
-/**
- * Можно ли положить стопку на ряд: достоинство ниже на единицу
- * и цвет противоположный.
- */
 export function canToTableau(state, moving, targetPile) {
   if (moving.length === 0) return false
   const head = moving[0]
@@ -163,11 +129,6 @@ export function canToTableau(state, moving, targetPile) {
   return isRed(head) !== isRed(target) && rankOf(head) === rankOf(target) - 1
 }
 
-/**
- * Можно ли сейчас взять карту (или стопку) и положить её в ряд.
- * Нужна подсветке при перетаскивании, чтобы показать заранее,
- * что ход пройдёт, а что нет.
- */
 export function canDropOnTableau(state, source, index, targetPile) {
   if (source === 'waste') {
     if (state.waste.length === 0) return false
@@ -178,7 +139,6 @@ export function canDropOnTableau(state, source, index, targetPile) {
   return source !== targetPile && canToTableau(state, moving, state.tableau[targetPile])
 }
 
-/** То же самое для основания: подходит ли верхняя карта перетаскиваемой стопки. */
 export function canDropOnFoundation(state, source, index) {
   if (source === 'waste') {
     return state.waste.length > 0 && canToFoundation(state, state.waste[state.waste.length - 1])
@@ -187,7 +147,6 @@ export function canDropOnFoundation(state, source, index) {
   return !!moving && moving.length === 1 && canToFoundation(state, moving[0])
 }
 
-/** Стопка в ряду, начиная с заданной позиции, если она вся открыта. */
 export function runFrom(state, pile, index) {
   const cards = state.tableau[pile].slice(index)
   if (cards.length === 0) return null
@@ -197,7 +156,6 @@ export function runFrom(state, pile, index) {
   return cards
 }
 
-/** Ход из отбоя в ряд. */
 export function moveWasteToTableau(state, pile) {
   if (state.waste.length === 0) return false
   const card = state.waste[state.waste.length - 1]
@@ -211,7 +169,6 @@ export function moveWasteToTableau(state, pile) {
   return true
 }
 
-/** Ход из отбоя в основание. */
 export function moveWasteToFoundation(state) {
   if (state.waste.length === 0) return false
   const card = state.waste[state.waste.length - 1]
@@ -225,7 +182,6 @@ export function moveWasteToFoundation(state) {
   return true
 }
 
-/** Ход между рядами: переносится стопка из index и ниже. */
 export function moveTableauToTableau(state, from, to, index) {
   if (from === to) return false
   const moving = runFrom(state, from, index)
@@ -241,7 +197,6 @@ export function moveTableauToTableau(state, from, to, index) {
   return true
 }
 
-/** Ход из ряда в основание. */
 export function moveTableauToFoundation(state, from, index) {
   const moving = runFrom(state, from, index)
   if (!moving || moving.length !== 1) return false
@@ -257,7 +212,6 @@ export function moveTableauToFoundation(state, from, index) {
   return true
 }
 
-/** Взять карту из колоды в отбой. Когда колода пуста, переворачиваем отбой. */
 export function drawFromStock(state) {
   if (state.stock.length === 0) {
     if (state.waste.length === 0) return false
@@ -281,7 +235,6 @@ export function drawFromStock(state) {
   return true
 }
 
-/** Двойной клик: попытаться убрать карту в основание. */
 export function autoToFoundation(state, source, index) {
   if (source === 'waste') {
     return moveWasteToFoundation(state)
@@ -289,11 +242,6 @@ export function autoToFoundation(state, source, index) {
   return moveTableauToFoundation(state, source, index)
 }
 
-/**
- * Есть ли ход по столу: карта из отбоя или ряда ложится в ряд или в
- * основание. Колодой здесь не считаем — перебор колоды не продвигает
- * партию и не должен считаться настоящим ходом.
- */
 export function hasBoardMove(state) {
   if (state.waste.length > 0) {
     const top = state.waste[state.waste.length - 1]
@@ -317,17 +265,11 @@ export function hasBoardMove(state) {
   return false
 }
 
-/**
- * Есть ли хоть какой-то ход. Колода и отбой — всегда ход: либо взять
- * карту, либо перевернуть отбой обратно в колоду. Поэтому тупик
- * возможен только когда обе стопки пусты.
- */
 export function hasAnyMove(state) {
   if (state.stock.length > 0 || state.waste.length > 0) return true
   return hasBoardMove(state)
 }
 
-/** Есть ли в рядах закрытые карты. */
 export function hasHiddenCards(state) {
   for (const pile of state.tableau) {
     for (const card of pile) {
@@ -337,15 +279,10 @@ export function hasHiddenCards(state) {
   return false
 }
 
-/**
- * Все карты на виду: колода и отбой пусты, в рядах ничего не закрыто.
- * Дальше прятать нечего, поэтому партию можно доиграть автоматически.
- */
 export function allCardsRevealed(state) {
   return state.stock.length === 0 && state.waste.length === 0 && !hasHiddenCards(state)
 }
 
-/** Копия состояния для пробных ходов. Историю не копируем. */
 function copyState(state) {
   return {
     stock: state.stock.slice(),
@@ -359,10 +296,6 @@ function copyState(state) {
   }
 }
 
-/**
- * Пробует убрать в основание любую подходящую карту.
- * Возвращает ход или null.
- */
 function takeToFoundation(sim) {
   if (sim.waste.length > 0 && canToFoundation(sim, sim.waste[sim.waste.length - 1])) {
     const card = sim.waste[sim.waste.length - 1]
@@ -381,10 +314,6 @@ function takeToFoundation(sim) {
   return null
 }
 
-/**
- * Пробует переложить стопку между рядами, чтобы открыть карту.
- * Возвращает ход или null.
- */
 function takeTableau(sim) {
   for (let from = 0; from < sim.tableau.length; from++) {
     for (let index = 0; index < sim.tableau[from].length; index++) {
@@ -400,20 +329,11 @@ function takeTableau(sim) {
   return null
 }
 
-/** Вне оснований не осталось ни одной карты. */
 function emptyOutsideFoundations(state) {
   if (state.stock.length > 0 || state.waste.length > 0) return false
   return state.tableau.every((pile) => pile.length === 0)
 }
 
-/**
- * Порядок ходов, которыми оставшиеся карты уйдут в основания: панель
- * проигрывает план по одному ходу, карты в основания улетают с анимацией.
- *
- * Возвращает null, если даже так разобраться нельзя — тогда партию
- * продолжают играть вручную. Сначала пробуем всё унести в основания,
- * и только если не идёт — перекладываем стопки между рядами.
- */
 export function planAutoFinish(state) {
   const sim = copyState(state)
   const plan = []
@@ -434,7 +354,6 @@ function checkWin(state) {
   state.won = state.foundations.every((pile) => pile.length === 13)
 }
 
-/** Сколько карт ещё не убрано в основание. */
 export function cardsRemaining(state) {
   let n = state.stock.length + state.waste.length
   for (const pile of state.tableau) n += pile.length

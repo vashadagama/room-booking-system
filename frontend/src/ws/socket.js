@@ -1,13 +1,5 @@
 import { ref } from 'vue'
 
-/**
- * Одно WebSocket-соединение на всё приложение, а не на каждую страницу.
- *
- * Нативный браузерный WebSocket — зависимости не нужны.
- * Адрес берём от location, поэтому и в dev (через прокси Vite),
- * и в проде (за nginx на том же домене) работает одинаково.
- */
-
 const listeners = new Set()
 
 export const wsStatus = ref('disconnected')
@@ -68,8 +60,6 @@ function open() {
     attempt = 0
     wsError.value = null
     wsStatus.value = 'connected'
-    // Пока клиент был офлайн, события могли пройти мимо —
-    // сообщаем подписчикам, чтобы они перезапросили актуальное состояние.
     emit({ type: 'SOCKET_OPEN' })
   }
 
@@ -100,8 +90,6 @@ export function connectWs() {
   closedByUs = false
   open()
 }
-
-/** Закрыть соединение и не переподключаться (например, при выходе). */
 export function disconnectWs() {
   closedByUs = true
   clearTimeout(reconnectTimer)

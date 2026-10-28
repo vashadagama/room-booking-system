@@ -61,12 +61,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(body);
     }
 
-    /**
-     * Всё остальное — 500 с текстом ошибки.
-     * Без этого необработанное исключение уходило в /error,
-     * который закрыт для анонимов, и клиент получал пустой 403
-     * вместо настоящей причины.
-     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleUnexpected(Exception ex) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,

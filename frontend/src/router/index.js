@@ -23,8 +23,6 @@ const router = createRouter({
   routes
 })
 
-// Список комнат и расписание свободны для всех.
-// Личные страницы — только после входа.
 router.beforeEach((to) => {
   if (!to.meta.requiresAuth) return true
 
@@ -33,8 +31,6 @@ router.beforeEach((to) => {
     return { name: 'register', query: { from: to.fullPath } }
   }
 
-  // Роль лежит в user, а он подгружается асинхронно: без профиля
-  // проверять нечего, пускаем, а стор сам добьёт данные.
   if (to.meta.requiresAdmin && authStore.user?.role && !authStore.isAdmin) {
     return { name: 'profile' }
   }

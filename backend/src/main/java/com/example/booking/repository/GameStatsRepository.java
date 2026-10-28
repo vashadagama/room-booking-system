@@ -16,13 +16,6 @@ public interface GameStatsRepository extends JpaRepository<GameStats, Long> {
 
     List<GameStats> findAllByOrderByScoreDesc();
 
-    /**
-     * Итоги по играм нативным запросом, а не через сущности: в базе
-     * остаются строки со значением game_type, которого в enum больше нет
-     * (например, BATTLESHIP), и материализация сущности на такой строке
-     * роняет весь отчёт. Строкой такие значения проходят нормально —
-     * так вдобавок видно, что тип игры выпал из проекта.
-     */
     @Query(value = """
             SELECT game_type,
                    COUNT(*),
@@ -34,7 +27,6 @@ public interface GameStatsRepository extends JpaRepository<GameStats, Long> {
             """, nativeQuery = true)
     List<Object[]> gameTypeTotals();
 
-    /** Кто вообще играл — строкой, чтобы не спотыкаться на неизвестных типах игр. */
     @Query(value = "SELECT DISTINCT user_id FROM game_stats", nativeQuery = true)
     List<Long> distinctUserIds();
 

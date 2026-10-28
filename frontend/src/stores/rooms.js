@@ -35,14 +35,11 @@ export const useRoomStore = defineStore('rooms', () => {
     }
   }
 
-  // Список комнат присылает сервер целиком, поэтому просто заменяем массив —
-  // так состояние клиента не может разъехаться с серверным.
   onWsMessage((message) => {
     if (message.type === 'ROOMS_CHANGED') {
       rooms.value = message.rooms
     }
 
-    // Переподключились — наверняка что-то пропустили, перезапрашиваем.
     if (message.type === 'SOCKET_OPEN') {
       fetchRooms()
     }

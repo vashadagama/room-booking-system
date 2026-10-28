@@ -14,7 +14,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     long countByIsActiveTrue();
 
-    /** Комнаты с одинаковым именем — в БД уникальности нет. */
     @Query("SELECT r.name FROM Room r GROUP BY r.name HAVING COUNT(r) > 1")
     List<String> findDuplicateNames();
 }

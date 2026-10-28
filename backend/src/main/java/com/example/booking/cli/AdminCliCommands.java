@@ -29,14 +29,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-/**
- * Консольные команды под профилем cli: выгрузка, бэкап и отчёт о
- * состоянии данных. Админку сюда специально не кладём — она живёт
- * в вебе и показывает то же самое в браузере.
- *
- * Запуск:
- *   ./mvnw spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=cli"
- */
 @Component
 @Profile("cli")
 @RequiredArgsConstructor
@@ -47,11 +39,6 @@ public class AdminCliCommands {
     private final BookingRepository bookingRepository;
     private final GameStatsRepository gameStatsRepository;
 
-    /**
-     * Выдать права администратора. Через API это сделать нечем:
-     * регистрация всегда создаёт USER, поэтому без этой команды
-     * админку не открыть.
-     */
     @Command(name = "promote", description = "Выдать пользователю роль ADMIN: promote --username <логин>")
     @Transactional
     public String promote(
@@ -70,7 +57,6 @@ public class AdminCliCommands {
         return user.getUsername() + " теперь администратор. Токен нужно перевыпустить: войти заново.";
     }
 
-    /** Отчёт о том, где данные разошлись с ожидаемыми. */
     @Command(name = "report", description = "Показать аномалии в данных")
     @Transactional(readOnly = true)
     public String report() {
@@ -112,7 +98,6 @@ public class AdminCliCommands {
                 + problems.stream().map(p -> " - " + p).collect(Collectors.joining(System.lineSeparator()));
     }
 
-    /** Выгрузка таблиц в CSV за период. */
     @Command(name = "export", description = "Выгрузить данные в CSV: export [--from 2026-01-01] [--to 2026-12-31]")
     @Transactional(readOnly = true)
     public String export(
@@ -150,11 +135,6 @@ public class AdminCliCommands {
                 + ", записей об играх " + stats.size();
     }
 
-    /**
-     * Снимок базы в JSON. Пишем на Java, а не через pg_dump: в образе
-     * jre-alpine его нет, а тянуть postgresql-client ради одной команды
-     * не хочется. Пароли в снимок не попадают.
-     */
     @Command(name = "backup", description = "Сделать снимок базы в JSON: backup [--out backups]")
     @Transactional(readOnly = true)
     public String backup(
@@ -229,7 +209,6 @@ public class AdminCliCommands {
         return row;
     }
 
-    /** Ручная сборка JSON без ObjectMapper: структура плоская и известная. */
     private String toJson(Object value) {
         if (value == null) {
             return "null";

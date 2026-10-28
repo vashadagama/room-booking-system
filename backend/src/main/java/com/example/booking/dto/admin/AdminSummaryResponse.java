@@ -4,10 +4,6 @@ import lombok.Builder;
 
 import java.util.List;
 
-/**
- * Сводка для админки. Считается одним запросом на каждый счётчик,
- * чтобы страница не делала десяток отдельных вызовов.
- */
 @Builder
 public record AdminSummaryResponse(
         long users,

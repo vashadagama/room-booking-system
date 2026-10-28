@@ -13,8 +13,6 @@ client.interceptors.request.use((config) => {
   return config
 })
 
-// Собирает читаемый текст ошибки из разных форматов ответа backend:
-// обычная ошибка — в message, ошибка валидации — в errors (объект по полям).
 export function errorText(e, fallback = 'Something went wrong') {
   const data = e.response?.data
 

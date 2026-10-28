@@ -8,11 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-/**
- * Минимальная запись CSV. Своя реализация вместо библиотеки: в проекте
- * нет и не предвидится таблиц шире десятка столбцов, а лишняя зависимость
- * ради экранирования запятых и кавычек не нужна.
- */
 final class CsvWriter {
 
     private CsvWriter() {
@@ -34,7 +29,6 @@ final class CsvWriter {
         }
     }
 
-    /** Значение с запятой или кавычкой обязано быть в кавычках. */
     private static String escape(String value) {
         if (value == null) {
             return "";

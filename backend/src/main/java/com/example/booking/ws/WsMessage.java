@@ -6,16 +6,6 @@ import com.example.booking.dto.room.RoomResponse;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Сообщение, которое уходит клиенту.
- *
- * Передаём не дельту, а актуальное состояние затронутого среза —
- * список небольшой, зато у клиента не может разъехаться состояние:
- * он просто заменяет свой массив полученным.
- *
- * Поля со значением null не сериализуются: это включено глобально
- * в application.properties (spring.jackson.default-property-inclusion=non_null).
- */
 public record WsMessage(
         String type,
         List<RoomResponse> rooms,

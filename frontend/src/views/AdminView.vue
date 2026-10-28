@@ -26,8 +26,6 @@ async function load() {
   loading.value = true
   error.value = null
   try {
-    // Два независимых запроса: сводка и список комнат. Ошибка в одном
-    // не должна прятать второй, поэтому ловим их вместе.
     const [summaryRes, roomsRes] = await Promise.all([getAdminSummary(), getAdminRooms()])
     summary.value = summaryRes.data
     rooms.value = roomsRes.data

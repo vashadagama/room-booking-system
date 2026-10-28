@@ -7,8 +7,6 @@ import { connectWs, wsStatus } from '@/ws/socket'
 const authStore = useAuthStore()
 
 onMounted(() => {
-  // Профиль восстанавливаем из токена (он в localStorage),
-  // а сокет поднимаем один раз на всё приложение.
   authStore.ensureUserLoaded()
   connectWs()
 })

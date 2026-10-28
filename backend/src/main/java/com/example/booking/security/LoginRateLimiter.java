@@ -9,14 +9,6 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Счётчик неудачных попыток входа: не больше {@code maxAttempts} за окно
- * {@code windowMinutes}. Хранится в памяти процесса — этого достаточно для
- * одного инстанса, но при нескольких репликах счётчики не общие.
- *
- * Ключ — имя пользователя. Учти: это защищает от перебора, но позволяет
- * заблокировать конкретный аккаунт, засыпая его 5-ю попытками.
- */
 @Component
 public class LoginRateLimiter {
 

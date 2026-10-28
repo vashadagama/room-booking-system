@@ -36,8 +36,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtService.isValid(token)) {
                 AuthenticatedUser principal = AuthenticatedUser.fromToken(jwtService, token);
 
-                // Токены, выпущенные до появления role, не должны падать —
-                // у них роль считаем USER.
                 String role = principal.role() == null
                         ? Role.USER.name()
                         : principal.role();

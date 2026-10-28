@@ -14,17 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-/**
- * Превращает события предметной области в сообщения для сокетов.
- *
- * Слушает строго ПОСЛЕ коммита (AFTER_COMMIT). Иначе клиент получил бы
- * уведомление, сразу перезапросил данные и увидел бы ещё не
- * закоммиченное состояние — рассинхрон, который потом очень неприятно искать.
- *
- * REQUIRES_NEW обязателен: после коммита исходной транзакции её session
- * закрыта, а Booking.room грузится лениво, и без новой транзакции
- * обращение к room.getName() упало бы с LazyInitializationException.
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j

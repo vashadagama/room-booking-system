@@ -12,33 +12,20 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Очки игрока.
- *
- * Считаются только здесь и только по правилам конкретной игры. Клиент
- * присылает факты (сколько секунд шла партия, сколько флажков стояло
- * верно), а цифры получает здесь: пересчитывать очки на клиенте нельзя,
- * клиенту нельзя доверять.
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class GameStatsService {
 
-    // Очки за сапёр: база минус штраф за время плюс бонус за верные флажки.
     private static final int MINESWEEPER_BASE = 100;
     private static final int MINESWEEPER_TIME_PENALTY_PER_SECOND = 1;
     private static final int MINESWEEPER_FLAG_BONUS = 5;
     private static final int MINESWEEPER_MIN_SCORE = 10;
-    /** Потолок одной партии: 100 базы плюс максимум 10 флажков по 5. */
     private static final int MINESWEEPER_MAX_SCORE = MINESWEEPER_BASE + 10 * MINESWEEPER_FLAG_BONUS;
     private static final int MINESWEEPER_MAX_FLAGS = 10;
     private static final int MINESWEEPER_MAX_SECONDS = 10_000;
 
-    // Очки за пасьянс: победа плюс награда за скорость и за аккуратность.
     private static final int SOLITAIRE_WIN_BASE = 300;
-    private static final int SOLITAIRE_SPEED_PENALTY_PER_SECOND = 1;
-    /** Выше этого времени скорость уже не учитывается. */
     private static final int SOLITAIRE_SPEED_WINDOW_SECONDS = 300;
     private static final int SOLITAIRE_MOVES_BONUS_CAP = 200;
     private static final int SOLITAIRE_MIN_SCORE = 50;
@@ -90,7 +77,6 @@ public class GameStatsService {
         return stats.getScore();
     }
 
-    /** Статистика по всем играм; игры, в которых ещё не играли, показываем нулями. */
     @Transactional(readOnly = true)
     public List<GameStats> statsFor(Long userId) {
         List<GameStats> stats = new ArrayList<>(gameStatsRepository.findAllByUserId(userId));

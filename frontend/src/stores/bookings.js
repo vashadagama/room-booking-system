@@ -14,8 +14,7 @@ export const useBookingStore = defineStore('bookings', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  // Какую комнату на какую дату сейчас смотрим. Нужно, чтобы не затирать
-  // экран событиями по другой комнате или другому дню.
+  // Какую комнату на какую дату сейчас смотрим.
   const currentRoomId = ref(null)
   const currentDate = ref(null)
 
@@ -61,7 +60,6 @@ export const useBookingStore = defineStore('bookings', () => {
 
   onWsMessage((message) => {
     if (message.type === 'BOOKINGS_CHANGED') {
-      // Реакция только на ту комнату и день, которые открыты на экране.
       if (
         currentRoomId.value === message.roomId &&
         currentDate.value === message.date
@@ -71,7 +69,6 @@ export const useBookingStore = defineStore('bookings', () => {
       return
     }
 
-    // После переподключения догоняем изменения, пока нас не было в сети.
     if (message.type === 'SOCKET_OPEN' && currentRoomId.value && currentDate.value) {
       fetchRoomBookings(currentRoomId.value, currentDate.value).catch(() => {})
     }

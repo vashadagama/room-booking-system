@@ -11,11 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * Данные для админ-панели. Создание, правка и отключение комнат живут
- * на /api/rooms — там уже есть правило hasRole("ADMIN"), дублировать
- * их здесь незачем.
- */
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
@@ -24,10 +19,6 @@ public class AdminController {
     private final AdminService adminService;
     private final RoomService roomService;
 
-    /**
-     * Все комнаты, включая отключённые. Публичный GET /api/rooms отдаёт
-     * только активные, а админке нужны и те, что выключены.
-     */
     @GetMapping("/rooms")
     public List<RoomResponse> rooms() {
         return roomService.getAllIncludingInactive();

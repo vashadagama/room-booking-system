@@ -5,12 +5,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * Накопительная статистика пользователя по одной игре.
- *
- * Строка на пару (пользователь, игра): уникальный индекс не даёт
- * завести две записи об одном и том же, если запросы придут одновременно.
- */
 @Entity
 @Table(
         name = "game_stats",
@@ -44,12 +38,10 @@ public class GameStats {
     @Builder.Default
     private int losses = 0;
 
-    /** Сумма очков за все партии. */
     @Column(nullable = false)
     @Builder.Default
     private int score = 0;
 
-    /** Лучший результат за одну партию. */
     @Column(name = "best_game", nullable = false)
     @Builder.Default
     private int bestGame = 0;

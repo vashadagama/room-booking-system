@@ -24,12 +24,6 @@ import {
   undo
 } from '@/games/solitaire'
 
-/**
- * Карточка в развёрнутом ряду сдвигается по вертикали, а карты в ряду
- * наезжают друг на друга. Шаг один и для открытых, и для закрытых:
- * иначе стопка «ёлает» на стыке двух разных шагов. Держи его в паре
- * с `min-height` у `.sol-tableau` — двенадцать таких промежутков.
- */
 const FAN = 10
 
 const authStore = useAuthStore()
@@ -96,23 +90,13 @@ const autoplay = ref(false)
 const autoMoves = ref(0)
 let autoStarted = false
 
-/** Ходы, сделанные игроком: автодобор в очки за аккуратность не идёт. */
+/** Ходов, сделанные игроком: автодобор в очки за аккуратность не идёт. */
 const playerMoves = computed(() => Math.max(0, state.value.moves - autoMoves.value))
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** Где сейчас лежит карта: в отбое или в каком ряду. */
 function locateCard(card) {
-  if (wasteTop.value === card) return { source: PICK_WASTE, index: 0 }
-  for (let pile = 0; pile < state.value.tableau.length; pile++) {
-    const index = state.value.tableau[pile].indexOf(card)
-    if (index !== -1) return { source: pile, index }
-  }
-  return null
-}
-
-/** Карта-призрак: летит из ряда в своё основание и гаснет над ним. */
-function launchFly(card, from, to, delay, duration) {
   const fly = document.createElement('div')
   fly.className = 'sol-fly' + (isRed(card) ? ' red' : '')
   fly.style.left = `${from.left}px`
@@ -157,11 +141,6 @@ function launchFly(card, from, to, delay, duration) {
   setTimeout(remove, delay + duration + 150)
 }
 
-/**
- * Проигрывает план до победы: карты улетают в основания каскадом.
- * Игрок в это время не вмешивается, таймер остановлен — партию он
- * фактически доиграл сам, до последнего хода.
- */
 async function runAutoFinish(plan) {
   autoplay.value = true
   stopTimer()
@@ -202,7 +181,6 @@ async function runAutoFinish(plan) {
   autoplay.value = false
 }
 
-/** Когда закрывать больше нечего, партия доигрывается сама. */
 function maybeAutoFinish() {
   if (state.value.won || autoplay.value || autoStarted) return
   if (!allCardsRevealed(state.value)) return
@@ -273,21 +251,6 @@ function onDragMove(event) {
 
 /** Что под курсором: ряд или основание. Призрак не перехватывает события. */
 function hitTest(x, y) {
-  const element = document.elementFromPoint(x, y)
-  if (!element) return null
-
-  const pile = element.closest('.sol-pile')
-  if (pile) {
-    return { kind: 'tableau', index: Number(pile.dataset.pile) }
-  }
-  const foundation = element.closest('.sol-foundation')
-  if (foundation) {
-    return { kind: 'foundation', index: Number(foundation.dataset.foundation) }
-  }
-  return null
-}
-
-function checkTarget(source, target) {
   if (target.kind === 'foundation') {
     return canDropOnFoundation(state.value, source.source, source.index)
   }

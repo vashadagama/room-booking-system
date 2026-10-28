@@ -15,12 +15,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Держит открытые соединения и рассылает им сообщения.
- *
- * Соединения публичные: список комнат и расписание и так доступны всем
- * через REST без токена, поэтому сокет ничего дополнительно не раскрывает.
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -58,11 +52,6 @@ public class RoomWsHandler extends TextWebSocketHandler {
         }
     }
 
-    /**
-     * Пингуем раз в минуту и попутно вычищаем мёртвые соединения.
-     * Без этого вкладка, закрытая без корректного закрытия, осталась бы
-     * в реестре навсегда.
-     */
     @Scheduled(fixedDelay = 60_000)
     public void heartbeat() {
         sessions.values().removeIf(session -> {
@@ -111,8 +100,6 @@ public class RoomWsHandler extends TextWebSocketHandler {
         try {
             return objectMapper.writeValueAsString(message);
         } catch (RuntimeException e) {
-            // Jackson 3 не бросает проверяемых исключений, но оборачивать
-            // всё равно полезно: молча уронить рассылку нельзя.
             throw new IllegalStateException("Не удалось сериализовать WS-сообщение: " + message.type(), e);
         }
     }

@@ -6,7 +6,6 @@ import SolitairePanel from '@/components/features/SolitairePanel.vue'
 
 const authStore = useAuthStore()
 
-// Классический новичковый уровень: поле 9×9, 10 мин.
 const COLS = 9
 const ROWS = 9
 const MINES = 10
@@ -33,7 +32,6 @@ const face = computed(() => {
 /** Сколько флажков стояло на минах — из этого складываются очки. */
 const correctFlags = computed(() => cells.value.filter(c => c.flagged && c.mine).length)
 
-// Очки считает сервер: клиент присылает только время и число верных флажков.
 async function reportWin() {
   if (!authStore.isAuthenticated) return
   try {
@@ -84,10 +82,6 @@ function reset() {
   exploded.value = -1
 }
 
-// Мины расставляются только после первого клика, и всегда не ближе
-// чем в соседнюю клетку — поэтому первый ход всегда открывает область.
-// Флажки, поставленные до первого хода, сохраняются: пересобираем
-// клетки, но не затираем отметки игрока.
 function placeMines(safeIdx) {
   const prevFlags = cells.value.map(c => c.flagged)
   const banned = new Set([safeIdx, ...neighbors(safeIdx)])
@@ -130,8 +124,6 @@ function stopTimer() {
   }
 }
 
-// Раскрытие «водопадом»: у клетки без мин открываем всех соседей.
-// Мины сюда попасть не могут — у нулевой клетки рядом мин нет.
 function flood(idx) {
   const stack = [idx]
   while (stack.length) {
@@ -190,16 +182,6 @@ function onClick(idx) {
 function onContext(idx) {
   if (over.value) return
   const cell = cells.value[idx]
-  if (cell.revealed) return
-  cell.flagged = !cell.flagged
-  flags.value += cell.flagged ? 1 : -1
-}
-
-// Средняя кнопка мыши или двойной клик по цифре открывает соседей,
-// если соседние мины уже отмечены.
-function chord(idx) {
-  if (over.value) return
-  const cell = cells.value[idx]
   if (!cell.revealed || cell.mine || cell.adjacent === 0) return
 
   const around = neighbors(idx)
@@ -220,10 +202,6 @@ function chord(idx) {
 }
 
 function onDblClick(idx) {
-  chord(idx)
-}
-
-function onMouseDown(idx, e) {
   if (e.button !== 1) return
   e.preventDefault()
   chord(idx)
@@ -247,7 +225,6 @@ function cellLabel(cell, idx) {
   return `${at}: закрыто`
 }
 
-// null — показан список игр, иначе открыта конкретная игра.
 const selected = ref(null)
 
 const TITLES = { minesweeper: 'Minesweeper', solitaire: 'Solitaire' }
@@ -258,7 +235,6 @@ const icon = computed(() => (selected.value ? ICONS[selected.value] : '🎮'))
 function openGame(id) {
   selected.value = id
 }
-
 
 function backToList() {
   selected.value = null

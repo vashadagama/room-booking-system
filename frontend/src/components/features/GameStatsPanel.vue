@@ -10,7 +10,6 @@ const stats = ref(null)
 const loading = ref(false)
 const error = ref(null)
 
-// Сервер отдаёт названия игр как в enum: MINESWEEPER.
 const LABELS = { MINESWEEPER: 'Minesweeper', SOLITAIRE: 'Solitaire' }
 
 const games = computed(() =>
@@ -40,7 +39,6 @@ onMounted(() => {
   loadStats()
 })
 
-// Очки начисляются в фоне, пока профиль открыт: подтягиваем их после смены пользователя.
 watch(() => authStore.user?.id, () => {
   if (authStore.isAuthenticated) {
     loadStats()
